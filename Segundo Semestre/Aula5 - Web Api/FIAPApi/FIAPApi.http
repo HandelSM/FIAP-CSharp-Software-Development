@@ -1,0 +1,6 @@
+@FIAPApi_HostAddress = http://localhost:5177
+
+GET {{FIAPApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
