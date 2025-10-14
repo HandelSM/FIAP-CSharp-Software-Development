@@ -3,152 +3,135 @@
 var baseApi = new Uri("https://rickandmortyapi.com/api/");
 var client = new RickAndMortyClient(baseApi);
 
-var characters = await client.GetAllCharactersAsync();
-var episodes = await client.GetAllEpisodesAsync();
-var locations = await client.GetAllLocationsAsync();
+var charactersTask = client.GetAllCharactersAsync();
+var episodesTask = client.GetAllEpisodesAsync();
+var locationsTask = client.GetAllLocationsAsync();
 
-// -----------------------------------------------------------------------------
-// ÍNDICES ÚTEIS PARA JOINS (prepare antes dos exercícios)
-// -----------------------------------------------------------------------------
+var characters = await charactersTask;
+var episodes = await episodesTask;
+var locations = await locationsTask;
+
 var charByUrl = characters.ToDictionary(c => c.url);
 var epByUrl = episodes.ToDictionary(e => e.url);
 var locById = locations.ToDictionary(l => l.id);
 var locByUrl = locations.ToDictionary(l => l.url);
 
-Console.WriteLine("hello world");
-
-// -----------------------------------------------------------------------------
-// PROJEÇÃO E TRANSFORMAÇÃO
 // -----------------------------------------------------------------------------
 
-// 1) (Select)
+// 01) (Select/OrderBy/Take)
 //    Crie uma lista de objetos anônimos com { Id, Name, Species } de todos os personagens e
 //    exiba os 5 primeiros em ordem alfabética por Name.
 
-// 2) (Select com índice, .Select((c, i) => ... )) 
+// 02) (Select com índice, .Select((c, i) => ... ))
 //    A lista characters, tem o seu Id baseado no Id da API, mas e se quisermos o índice de acordo com a ordem alfabética?
 //    Refaça a questão 1, mas agora ao invés de Id, vamos usar nosso próprio Id.
 
-// 3) (SelectMany)
-//    Liste todas as URLs de episódios (sem repetição) a partir de characters (só vale usar a lista characters!),
-//    e conte quantas URLs distintas existem.
+// 03) (Where/char.IsDigit)
+//    Na questão 1 e 2, ordenando de forma alfabética primeiro aparecem os personagens cujos nomes começam com números (e.g. "26 Years Old Morty").
+//    refaça a questão 1, mas agora filtrando os personagens que começam com números.
 
-// 4) (Cast)
+// 04) Agora refaça a questão 2, fazendo o filtro dos personagens que começam com números.
 
-// 5) (OfType)
+// 05) (Distinct)
+//    Liste todas as espécies (Species) de personagens, sem repetições, em ordem alfabética.
 
-// 6) (Append / Prepend)
+// 06) (Cast/OfType): Dado um List<object> { "rick", 42, "morty", 1.5 }, filtre apenas strings
+//    e junte-as numa única string separada por vírgula.
 
-// 7) (Chunk)
+var q6 = new List<object> { "rick", 70, "morty", 14 };
 
-// -----------------------------------------------------------------------------
-// FILTRAGEM E PARTICIONAMENTO
-// -----------------------------------------------------------------------------
+// 07) (Append / Prepend): Pegue os 3 primeiros nomes de personagens e:
+//    - Prepend("BEGIN")
+//    - Append("END")
+//    Imprima a sequência resultante.
 
-// 8) (Where)
+// 08) Liste todos os episódios.
 
-// 9) (Skip / Take)
+// 09) (Chunk)
+//     Divida a lista de episódios em chunks de 10. Para cada chunk,
+//     imprima "Lote X: {primeiroCodigo}..{ultimoCodigo}".
 
-// 10) (SkipWhile)
+// 10) Liste personagens "Alive" E espécie "Human". Ordene por Name e mostre 10.
 
-// 11) (TakeWhile)
+// 11) (SkipWhile)
+//     Ordene episódios por Code e pule enquanto o Code começar com "S02".
+//     Ou seja, pule todos da segunda temporada.
 
-// 12) (SkipLast / TakeLast)
+// 12) (TakeWhile/Count)
+//     Pegue episódios enquanto o Code começar com "S02". Conte-os.
 
-// 13) (DefaultIfEmpty)
+// 13) (SkipLast/TakeLast)
+//     Ordene personagens por número de episódios decrescente.
+//     Pegue os 5 últimos (TakeLast) e depois pule o último (SkipLast(1)) dessa seleção.
 
-// -----------------------------------------------------------------------------
-// ORDENAÇÃO
-// -----------------------------------------------------------------------------
+// 14) (DistinctBy)
+//     Use DistinctBy para criar uma lista de personagens únicos por Species, ou seja, um representante de cada espécie.
 
-// 14) (OrderBy / OrderByDescending)
+// 15) (Union)
+//     Liste todas as personagens que tem "Rick" no nome, depois liste todos as personagens que tem "Morty" no nome.
+//     Una as listas usando Union.
 
-// 15) (ThenBy / ThenByDescending)
+// 16) (UnionBy)
+//     Já está listado os 20 personagens que mais aparecem em episódios.
+//     Também já está listado todos os personagens vivos e que são aliens.
+//     Use UnionBy para adicionar em top20 os alives alines.
 
-// 16) (Reverse)
+var top20 = characters.OrderByDescending(c => c.episode.Count).Take(20);
+var aliveAliens = characters.Where(c => c.status == "Alive" && c.species == "Alien");
 
-// -----------------------------------------------------------------------------
-// CONJUNTOS (SET OPERATIONS)
-// -----------------------------------------------------------------------------
+// 17) (Intersect)
+//     Agora veja quem são os que estão em top20 e também são alives aliens.
 
-// 17) (Distinct)
+// 18) (IntersectBy)
+//     A 17 também pode ser feita usando IntersectBy. Tente fazer.
 
-// 18) (DistinctBy)
+// 19) (Except)
+//     Veja quem são os personagens que estão em top20 mas não estão vivos.
 
-// 19) (Union)
+// 20) (ExceptBy)
+//     Também temos o ExceptBy. Union, Intersect e Except compara se os objetos são iguais em todos os campos, aqueles com By você
+//     pode escolher um campo para comparar.
 
-// 20) (UnionBy)
+// 21) Dado o código de um episódio (tente vários), liste os nomes dos personagens que aparecem nele. (faça com select)
 
-// 21) (Intersect)
+var q21EpisodeCode = "S01E01";
+var q21Episode = episodes.First(e => e.episode == q21EpisodeCode);
 
-// 22) (IntersectBy)
+// 22) (Join)
+//     Tente fazer a questão 21 usando Join.
 
-// 23) (Except)
-
-// 24) (ExceptBy)
-
-// -----------------------------------------------------------------------------
-// JUNÇÕES E AGRUPAMENTO
-// -----------------------------------------------------------------------------
-
-// 25) (Join)
-
-// 26) (GroupJoin)
-
-// 27) (GroupBy)
-
-// 28) (ToLookup)
-
-// -----------------------------------------------------------------------------
-// AGREGAÇÃO E ESTATÍSTICA
-// -----------------------------------------------------------------------------
-
-// 29) (Aggregate)
-
-// 30) (Sum / Average / Min / Max)
-
-// 31) (MinBy / MaxBy)
-
-// 32) (Count / LongCount)
+// 23) (GroupBy)
+//     Agrupe os personagens por espécie (Species). Para cada espécie, mostre a contagem de personagens.
 
 // -----------------------------------------------------------------------------
-// QUANTIFICADORES E COMPARAÇÃO
+// Funções da static class Enumerable
 // -----------------------------------------------------------------------------
 
-// 33) (Any / All)
+// 24) (Enumerable.Empty)
+//     Crie uma lista vazia de inteiros.
 
-// 34) (Contains)
+// 25) (Enumerable.Range)
+//     Crie uma lista de inteiros de 1 a 20.
 
-// 35) (SequenceEqual)
+// 26) Crie uma lista dos quadrados dos números de 1 a 20.
 
-// -----------------------------------------------------------------------------
-// ELEMENTOS (ACESSO PONTUAL)
-// -----------------------------------------------------------------------------
-
-// 36) (First / FirstOrDefault)
-
-// 37) (Last / LastOrDefault)
-
-// 38) (Single / SingleOrDefault)
-
-// 39) (ElementAt / ElementAtOrDefault)
+// 27) (Enumerable.Repeat)
+//     Crie uma lista com 10 vezes o valor "Rick".
 
 // -----------------------------------------------------------------------------
-// CRIAÇÃO/GERAÇÃO E CONVERSÕES
 // -----------------------------------------------------------------------------
 
-// 40) (Enumerable.Empty<T>)
+// 28) (Zip)
+//     Crie uma lista da soma das listas dos exercicios 25 e 26.
 
-// 41) (Range / Repeat)
+// 29) (SequenceEqual)
+//     Cheque se quadrados1 e quadrados2 são iguais.
+var quadrados1 = Enumerable.Range(1, 20).Select(n => n * n);
+var quadrados2 = Enumerable.Range(1, 20).Zip(Enumerable.Range(1, 20), (x, y) => x * y);
 
-// 42) (AsEnumerable)
-
-// 43) (ToArray / ToList / ToDictionary / ToHashSet)
-
-// 44) (Zip)
-
-// 45) (TryGetNonEnumeratedCount)
-
-// -----------------------------------------------------------------------------
-
-Console.WriteLine("bye");
+// 30)
+// Chegamos ao fim, vimos várias funções de Linq, mas ainda temos muitas outras. Explore elas, aqui vão algumas que faltaram, procurem saber sobre:
+// Concat, Reverse, GroupJoin, ToLookup, Aggregate, Sum, Average, Min, Max, MinBy, MaxBy, Count, LongCount, Any, All, Contains,
+// DefaultIfEmpty, First/FirstOrDefault, Last/LastOrDefault, Single/SingleOrDefault, ElementAt/ElementAtOrDefault, AsEnumerable
+// ToArray, ToList, ToDictionary, ToHashSet...
+// Como última questão use alguma nova que não foi usada nas outras questões para obter uma informação interessante sobre o universo de Rick & Morty.
